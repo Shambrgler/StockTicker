@@ -33,16 +33,16 @@ def getOptionList(stockName):
     maxotmstrike = 0
     for row in rows:
         try:   
-            if (price - 5 < float(row.text.split(' ')[4]) < price) and ((float(row.text.split(' ')[4])) - price + (float(row.text.split(' ')[5])) > 0):
-                profit = ((float(row.text.split(' ')[4])) - price + (float(row.text.split(' ')[5])))
+            if (price - 10 < float(row.text.split(' ')[4]) < price) and ((float(row.text.split(' ')[4])) - price + (float(row.text.split(' ')[6])) > 0):
+                profit = ((float(row.text.split(' ')[4])) - price + (float(row.text.split(' ')[6])))
                 if profit > maxitmprofit:
                     maxitmprofit = profit
                     maxitmstrike = (float(row.text.split(' ')[4]))
                 #strikeList[stockName] = ([float(row.text.split(' ')[4]), float(row.text.split(' ')[5])])
                 #print(strikeList[stockName])
 
-            elif (price + 5 > float(row.text.split(' ')[4]) > price):
-                profit = float(row.text.split(' ')[5])
+            elif (price + 10 > float(row.text.split(' ')[4]) > price):
+                profit = float(row.text.split(' ')[6])
                 if profit > maxotmprofit:
                     maxotmprofit = profit
                     maxotmstrike = float(row.text.split(' ')[4])
@@ -69,7 +69,7 @@ def getStockPrice(stock):
     driver.get(stockPage)
     try:
         price = WebDriverWait(driver, 1).until(
-            ec.presence_of_element_located((By.XPATH, '//*[@class="W(100%) M(0)"]/tbody/tr[1]/td[2]'))
+            ec.presence_of_element_located((By.XPATH, '//*[@class="W(100%) M(0)"]/tbody/tr[1]/td[5]'))
         )
         driver.execute_script("window.stop();")
         return price.text
@@ -83,10 +83,11 @@ def getPriceDict():
         driver.get(stockPage)
         try:
             price = WebDriverWait(driver, 1).until(
-                ec.presence_of_element_located((By.XPATH, '//*[@class="W(100%) M(0)"]/tbody/tr[1]/td[2]'))
+                ec.presence_of_element_located((By.XPATH, '//*[@class="W(100%) M(0)"]/tbody/tr[1]/td[5]'))
             )
-            driver.execute_script("window.stop();")
-            stockPrice[i] = price.text
+            #driver.execute_script("window.stop();")
+            if float(price.text) < 125.0:
+                stockPrice[i] = price.text
         except:
             print("Could not find stock:", i)
 
@@ -96,7 +97,7 @@ getPriceDict()
 for key, value in stockPrice.items():
     print(key, ":", value)
 
-for i in stock:
+for i in stockPrice.keys():
     getOptionList(i)
 driver.quit()
 
