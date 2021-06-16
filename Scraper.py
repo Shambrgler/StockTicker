@@ -7,34 +7,97 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.chrome.options import Options
 
 options = Options()
-options.page_load_strategy = 'none'
+options.page_load_strategy = 'eager'
 #options.add_argument('--headless')
 options.add_argument('--log-level=3')
 
-PATH = r'c:/Installs/chromedriver/chromedriver.exe'
+PATH = '/home/wayne/chromedriver/chromedriver'
 driver = webdriver.Chrome(PATH, options=options)
-stocknametxt = r'C:\Users\P44039\Documents\Visual Studio\Python\StockTicker\stocknametxt.txt'
+stocknametxt = '/home/wayne/Documents/Code/Python/StockTicker/stocknametxt.txt'
 stock = []
-with open(stocknametxt) as filename:
-    for line in filename:
-        stock.append(line.strip('\n'))
-    filename.close()
+stockPrice = {}
+balance = 14000 #amount available to trade with
 
-print(stock)
+def getOptionList(stockName):
+    price = float(stockPrice[stockName])
+    stockPage = ("https://finance.yahoo.com/quote/%s/options?p=%s" % (stockName, stockName))
+    driver.get(stockPage)
+    tabledata = WebDriverWait(driver, 5).until(
+        ec.presence_of_element_located((By.XPATH, '//*[@id="Col1-1-OptionContracts-Proxy"]/section/section[1]/div[2]/div/table'))
+    )
+    rows = tabledata.find_elements(By.TAG_NAME, 'tr')
+    strikeList = {}
+    maxitmprofit = 0
+    maxitmstrike = 0
+    maxotmprofit = 0
+    maxotmstrike = 0
+    for row in rows:
+        try:   
+            if (price - 5 < float(row.text.split(' ')[4]) < price) and ((float(row.text.split(' ')[4])) - price + (float(row.text.split(' ')[5])) > 0):
+                profit = ((float(row.text.split(' ')[4])) - price + (float(row.text.split(' ')[5])))
+                if profit > maxitmprofit:
+                    maxitmprofit = profit
+                    maxitmstrike = (float(row.text.split(' ')[4]))
+                #strikeList[stockName] = ([float(row.text.split(' ')[4]), float(row.text.split(' ')[5])])
+                #print(strikeList[stockName])
 
+            elif (price + 5 > float(row.text.split(' ')[4]) > price):
+                profit = float(row.text.split(' ')[5])
+                if profit > maxotmprofit:
+                    maxotmprofit = profit
+                    maxotmstrike = float(row.text.split(' ')[4])
+                #strikeList[stockName] = ([float(row.text.split(' ')[4]), float(row.text.split(' ')[5])])
+                #print(strikeList[stockName])
+            #if (price - 5 < float(row.text.split(' ')[4]) < price + 5) and ((float(row.text.split(' ')[4])) + (float(row.text.split(' ')[5])) < price):
+        except:
+            #have to have the except because first row is column names, not data
+            pass
+    print(stockName,":")
+    print("Max in the money strike:", maxitmstrike, "Profit:", maxitmprofit)
+    print("Max out the money strike:", maxotmstrike, "Profit:", maxotmprofit)
+    #return maxitmprofit, maxotmprofit
 
-for i in stock:
-    stockPage = ("https://finance.yahoo.com/quote/%s/history?p=%s" % (i, i))
+def getStocks():
+    with open(stocknametxt) as filename:
+        for line in filename:
+            x = line.split()
+            stock.append(x[0].strip('\n'))
+        filename.close()
+
+def getStockPrice(stock):
+    stockPage = ("https://finance.yahoo.com/quote/%s/history?p=%s" % (stock, stock))
     driver.get(stockPage)
     try:
         price = WebDriverWait(driver, 1).until(
             ec.presence_of_element_located((By.XPATH, '//*[@class="W(100%) M(0)"]/tbody/tr[1]/td[2]'))
         )
         driver.execute_script("window.stop();")
-        print(i, ':', price.text)
+        return price.text
+        #print(i, ':', price.text)
     except:
-        print("Could not find stock:", i)
+        print("Could not find stock:", stock)
 
+def getPriceDict():
+    for i in stock:
+        stockPage = ("https://finance.yahoo.com/quote/%s/history?p=%s" % (i, i))
+        driver.get(stockPage)
+        try:
+            price = WebDriverWait(driver, 1).until(
+                ec.presence_of_element_located((By.XPATH, '//*[@class="W(100%) M(0)"]/tbody/tr[1]/td[2]'))
+            )
+            driver.execute_script("window.stop();")
+            stockPrice[i] = price.text
+        except:
+            print("Could not find stock:", i)
+
+
+getStocks()
+getPriceDict()
+for key, value in stockPrice.items():
+    print(key, ":", value)
+
+for i in stock:
+    getOptionList(i)
 driver.quit()
 
 
