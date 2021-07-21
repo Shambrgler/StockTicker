@@ -11,10 +11,10 @@ options.page_load_strategy = 'eager'
 #options.add_argument('--headless')
 options.add_argument('--log-level=3')
 
-PATH = '/home/wayne/chromedriver/chromedriver'
+PATH = r'C:\Code\Chrome Driver\chromedriver.exe'
 driver = webdriver.Chrome(PATH, options=options)
 stocknametxt = '/home/wayne/Documents/Code/Python/StockTicker/stocknametxt.txt'
-stock = []
+stock = ['amd','arkk']
 stockPrice = {}
 balance = 14000 #amount available to trade with
 maxStockPrice = balance / 100
