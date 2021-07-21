@@ -8,15 +8,15 @@ from selenium.webdriver.chrome.options import Options
 
 options = Options()
 options.page_load_strategy = 'eager'
-#options.add_argument('--headless')
+options.add_argument('--headless')
 options.add_argument('--log-level=3')
 
-PATH = r'c:/Installs/chromedriver/chromedriver.exe'
+PATH = r'C:\Code\Chrome Driver\chromedriver.exe'
 driver = webdriver.Chrome(PATH, options=options)
 stocknametxt = r'C:\temp\stocknametxt.txt'
-stock = ['nok']
+stock = ['nok', 'amd', 'arkk']
 stockPrice = {}
-balance = 10000 #amount available to trade with
+balance = 18000 #amount available to trade with
 maxStockPrice = balance / 100
 
 def getOptionList(stockName):
