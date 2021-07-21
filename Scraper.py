@@ -11,17 +11,17 @@ options.page_load_strategy = 'eager'
 #options.add_argument('--headless')
 options.add_argument('--log-level=3')
 
-PATH = r'C:\Code\Chrome Driver\chromedriver.exe'
+PATH = r'c:/Installs/chromedriver/chromedriver.exe'
 driver = webdriver.Chrome(PATH, options=options)
-stocknametxt = '/home/wayne/Documents/Code/Python/StockTicker/stocknametxt.txt'
-stock = ['amd','arkk']
+stocknametxt = r'C:\temp\stocknametxt.txt'
+stock = ['nok']
 stockPrice = {}
-balance = 14000 #amount available to trade with
+balance = 10000 #amount available to trade with
 maxStockPrice = balance / 100
 
 def getOptionList(stockName):
     price = float(stockPrice[stockName])
-    stockPage = ("https://finance.yahoo.com/quote/%s/options?&p=%s" % (stockName, stockName))
+    stockPage = ("https://www.barchart.com/stocks/quotes/%s/options" % (stockName))
     driver.get(stockPage)
     #strikeList = {}
     maxitmprofit = [0,0,0]
@@ -31,14 +31,19 @@ def getOptionList(stockName):
 
     try:
         tabledata = WebDriverWait(driver, 5).until(
-            ec.presence_of_element_located((By.XPATH, '//*[@id="Col1-1-OptionContracts-Proxy"]/section/section[1]/div[2]/div/table'))
+            ec.presence_of_element_located((By.XPATH, '/html/body/main/div/div[2]/div[2]/div/div[2]/div/div/div/div[5]/div[1]/div/div[2]/div[1]/div[2]/div[2]/div/div/ng-transclude/table'))
         )
         rows = tabledata.find_elements(By.TAG_NAME, 'tr')
         for row in rows:
+            #print(type(row.text), "\n")
             try:
-                strikeprice = float(row.text.split(' ')[4])
-                bidprice = float(row.text.split(' ')[6])
-                if (price - 10 < strikeprice < price) and (strikeprice - price + bidprice > 0):
+                strikeprice = float(row.text.split('\n')[0])
+                #print("strikeprice,")
+                #print(strikeprice)
+                bidprice = float(row.text.split()[3])
+                #print("bidprice,")
+                #print(bidprice)
+                if (price - 5 < strikeprice < price) and (strikeprice - price + bidprice > 0):
                     profit = (strikeprice - price + bidprice)
                     #for i in range(len(maxitmprofit)):
 
@@ -49,7 +54,7 @@ def getOptionList(stockName):
                     #print(maxitmprofit)
                     #print(maxitmstrike)
 
-                elif (price + 10 > strikeprice > price):
+                elif (price + 5 > strikeprice > price):
                     profit = bidprice
                     if profit > maxotmprofit:
                         maxotmprofit = profit
@@ -62,7 +67,7 @@ def getOptionList(stockName):
                 pass
     except:
         pass
-    print("\n\n",stockName,":")
+    print("\n\n",stockName,":", price)
     for i in range(len(maxitmprofit)):
         if maxitmprofit[i] != 0:
             totalitmprofit = (((balance / price) // 100) * maxitmprofit[i]) * 100
@@ -84,11 +89,11 @@ def getStocks():
         filename.close()
 
 def getStockPrice(stock):
-    stockPage = ("https://finance.yahoo.com/quote/%s/history?p=%s" % (stock, stock))
+    stockPage = ("https://www.barchart.com/stocks/quotes/%s/overview" % (stock))
     driver.get(stockPage)
     try:
         price = WebDriverWait(driver, 1).until(
-            ec.presence_of_element_located((By.XPATH, '//*[@class="W(100%) M(0)"]/tbody/tr[1]/td[5]'))
+            ec.presence_of_element_located((By.XPATH, '/html/body/main/div/div[2]/div[2]/div/div[2]/div/div[1]/div/div[1]/div[2]/div[2]/span[1]'))
         )
         driver.execute_script("window.stop();")
         return price.text
@@ -98,11 +103,11 @@ def getStockPrice(stock):
 
 def getPriceDict():
     for i in stock:
-        stockPage = ("https://finance.yahoo.com/quote/%s/history?p=%s" % (i, i))
+        stockPage = ("https://www.barchart.com/stocks/quotes/%s/overview" % (i))
         driver.get(stockPage)
         try:
-            price = WebDriverWait(driver, 1).until(
-                ec.presence_of_element_located((By.XPATH, '//*[@class="W(100%) M(0)"]/tbody/tr[1]/td[5]'))
+            price = WebDriverWait(driver, 5).until(
+                ec.presence_of_element_located((By.XPATH, '/html/body/main/div/div[2]/div[2]/div/div[2]/div/div[1]/div/div[1]/div[2]/div[2]/span[1]'))
             )
             #driver.execute_script("window.stop();")
             if float(price.text) < maxStockPrice:
@@ -119,15 +124,3 @@ for key, value in stockPrice.items():
 for i in stockPrice.keys():
     getOptionList(i)
 driver.quit()
-
-#/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[2]/section/div[2]/table/tbody/tr[1]/td[2]/span
-
-
-#search = driver.find_element_by_name("q")
-#search.send_keys("%s ticker" %(stock))
-#search.send_keys(Keys.RETURN)
-
-#print(price)
-
-#time.sleep(5)
-#driver.close()
