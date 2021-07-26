@@ -14,10 +14,10 @@ options.add_argument('--log-level=3')
 PATH = r'C:\Code\Chrome Driver\chromedriver.exe'
 driver = webdriver.Chrome(PATH, options=options)
 stocknametxt = r'C:\temp\stocknametxt.txt'
-stock = ['nok', 'amd', 'arkk']
-optionDate = '2021-07-30-w'
+stock = ['amd']
+optionDate = '2021-08-06-w'
 stockPrice = {}
-balance = 18000 #amount available to trade with
+balance = 20000 #amount available to trade with
 maxStockPrice = balance / 100
 
 def getOptionList(stockName):
