@@ -3,8 +3,8 @@ import yfinance as yf
 from datetime import date, timedelta
 
 priceDict = {}
-stockInfoDict = pickle.load(open("C:/Users/P44039/Documents/Visual Studio/Python/StockTicker/stockInfoDict.p", "rb"))
-stocknametxt = r'C:\Users\P44039\Documents\Visual Studio\Python\StockTicker\stocknametxt.txt'
+stockInfoDict = pickle.load(open("[FILEPATH]/stockInfoDict.p", "rb"))
+stocknametxt = r'[FILEPATH]\stocknametxt.txt'
 stockList = []
 
 with open(stocknametxt) as filename:
