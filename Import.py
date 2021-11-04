@@ -4,7 +4,7 @@ import yfinance as yf
 from datetime import datetime
 import pickle
 
-stocknametxt = "/home/wayne/Documents/Code/Python/StockTicker/stockstxt.txt"
+stocknametxt = "[FILEPATH].txt"
 
 #amd = yf.Ticker('googl')
 #amdInfo = amd.info
@@ -39,7 +39,7 @@ def printStockInfo(stocks):
             print(x, ":", y)
 
 def dumpStockInfo():
-    pickle.dump(stockInfoDict, open('/home/wayne/Documents/Code/Python/StockTicker/stockInfoDict.p', "wb"))
+    pickle.dump(stockInfoDict, open('[FILEPATH]/stockInfoDict.p', "wb"))
 
 getStockInfo(stockList)
 dumpStockInfo()
